@@ -3,7 +3,7 @@
 
 clear all; 
 
-step = .001; %step time in seconds
+step = .01; %step time in seconds
 
 startInt = 0; %start of time interval
 endInt = 10;  %end of time interval
@@ -23,7 +23,7 @@ k3 = 0;
 k4 = 0;
 
 a_array = a0;
-t_array= t0;
+t_array = t0;
 
 %performing iterations
 for i=1:totalSteps
@@ -43,7 +43,14 @@ for i=1:totalSteps
     oldT = nextT;
 end
 
-%plotting
+%derivative calculation
 
+
+%plotting
 plot(t_array,a_array);
+
+%labels
+xlabel('Time (s)','FontSize',12);
+ylabel('a(t)','FontSize',12);
+title('Scale Factor vs. Time','FontSize',14,'FontWeight','bold');
 
