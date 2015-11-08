@@ -3,14 +3,15 @@
 
 clear all; 
 
+%user dialog, initial conditions
+t0 = input('Enter initial time: (seconds)');
+a0 = input('Enter intial scale factor value: (dimensionless)');
+
 step = .01; %step time in seconds
 
 startInt = 0; %start of time interval
 endInt = 10;  %end of time interval
 totalSteps = (endInt-startInt)/step;
-
-t0 = 0; %initial time value. 
-a0 = 1; %initial scale factor
 
 %setting initial conditions
 old_a = a0;
@@ -44,13 +45,25 @@ for i=1:totalSteps
 end
 
 %derivative calculation
-
+aPrime_array = derivOutputArray(a_array,t_array);
 
 %plotting
+subplot(1,2,1);
+
 plot(t_array,a_array);
 
 %labels
 xlabel('Time (s)','FontSize',12);
 ylabel('a(t)','FontSize',12);
 title('Scale Factor vs. Time','FontSize',14,'FontWeight','bold');
+
+subplot(1,2,2);
+plot(t_array,aPrime_array);
+
+xlabel('Time (s)','FontSize',12);
+ylabel('aPrime(t)','FontSize',12);
+title('Scale Factor Derivative vs. Time','FontSize',14,'FontWeight','bold');
+
+
+
 
