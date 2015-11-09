@@ -5,13 +5,13 @@ clear all;
 
 %user dialog, initial conditions
 t0 = input('Enter initial time: (seconds)');
+endInt = input('Enter end time: (seconds)');
 a0 = input('Enter intial scale factor value: (dimensionless)');
+sw = input('Type 1 for expanding universe, 0 for contracting universe.');
 
 step = .01; %step time in seconds
 
-startInt = 0; %start of time interval
-endInt = 10;  %end of time interval
-totalSteps = (endInt-startInt)/step;
+totalSteps = (endInt-t0)/step;
 
 %setting initial conditions
 old_a = a0;
@@ -24,18 +24,22 @@ k3 = 0;
 k4 = 0;
 
 a_array = a0;
-t_array = t0;
+t_array = t0; 
 
 %performing iterations
 for i=1:totalSteps
    
-    k1 = friedman(oldT,old_a);
-    k2 = friedman(oldT + step/2,old_a + (step/2)*k1);
-    k3 = friedman(oldT + step/2,old_a + (step/2)*k2);
-    k4 = friedman(oldT + step,old_a + step*k3);
+    k1 = friedman(oldT,old_a,sw);
+    k2 = friedman(oldT + step/2,old_a + (step/2)*k1,sw);
+    k3 = friedman(oldT + step/2,old_a + (step/2)*k2,sw);
+    k4 = friedman(oldT + step,old_a + step*k3,sw);
    
     nextT = oldT + step;
     next_a = old_a + (step/6)*(k1 + 2*k2 + 2*k3 + k4);
+    
+    if imag(next_a)~=0
+        break;
+    end
    
     a_array = [a_array next_a];
     t_array = [t_array nextT];
@@ -50,19 +54,19 @@ aPrime_array = derivOutputArray(a_array,t_array);
 %plotting
 subplot(1,2,1);
 
-plot(t_array,a_array);
+plot(t_array,a_array,'LineWidth',2);
 
 %labels
-xlabel('Time (s)','FontSize',12);
-ylabel('a(t)','FontSize',12);
-title('Scale Factor vs. Time','FontSize',14,'FontWeight','bold');
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('$a(t)$','FontSize',14,'interpreter','latex');
+title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 subplot(1,2,2);
-plot(t_array,aPrime_array);
+plot(t_array,aPrime_array,'LineWidth',2);
 
-xlabel('Time (s)','FontSize',12);
-ylabel('aPrime(t)','FontSize',12);
-title('Scale Factor Derivative vs. Time','FontSize',14,'FontWeight','bold');
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('$\dot{a}(t)$','FontSize',14,'interpreter','latex');
+title('Scale Factor Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 
 

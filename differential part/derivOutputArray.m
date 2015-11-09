@@ -14,7 +14,7 @@ yPrime = zeros([1 length(x)]);
 dx = x(3)-x(1); %two time steps chosen to find slope symmetric about given point
 
 for i=2:length(x)-1
-    derivAtPoint = (y(i-1)-y(i+1))/dx;
+    derivAtPoint = (y(i+1)-y(i-1))/dx;
 
     yPrime(i) = derivAtPoint;
 end
