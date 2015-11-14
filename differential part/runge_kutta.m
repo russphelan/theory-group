@@ -48,11 +48,13 @@ for i=1:totalSteps
     oldT = nextT;
 end
 
-%derivative calculation
+%derivative calculations
 aPrime_array = derivOutputArray(a_array,t_array);
 
+aDoublePrime_array = derivOutputArray(aPrime_array,t_array);
+
 %plotting
-subplot(1,2,1);
+subplot(2,2,1);
 
 plot(t_array,a_array,'LineWidth',2);
 
@@ -61,13 +63,18 @@ xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$a(t)$','FontSize',14,'interpreter','latex');
 title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
-subplot(1,2,2);
+subplot(2,2,2);
 plot(t_array,aPrime_array,'LineWidth',2);
 
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$\dot{a}(t)$','FontSize',14,'interpreter','latex');
-title('Scale Factor Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
+title('Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
+subplot(2,2,3);
+plot(t_array,aDoublePrime_array,'LineWidth',2);
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
+title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 
 
