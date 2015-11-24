@@ -4,14 +4,15 @@
 clear all; 
 
 %user dialog, initial conditions
+simType = input('Choose simulation type: \n(0)Classical Friedmann \n(1)Quantum Approximation \n(2)Full Quantum Behavior');
 t0 = input('Enter initial time: (seconds)');
 endInt = input('Enter end time: (seconds)');
 a0 = input('Enter intial scale factor value: (dimensionless)');
 sw = input('Type 1 for expanding universe, 0 for contracting universe.');
 
-step = .01; %step time in seconds
-
+step = .001; %step time in seconds
 totalSteps = (endInt-t0)/step;
+totalSteps = round(totalSteps);
 
 %setting initial conditions
 old_a = a0;
@@ -29,18 +30,16 @@ t_array = t0;
 %performing iterations
 for i=1:totalSteps
    
-    k1 = friedman(oldT,old_a,sw);
-    k2 = friedman(oldT + step/2,old_a + (step/2)*k1,sw);
-    k3 = friedman(oldT + step/2,old_a + (step/2)*k2,sw);
-    k4 = friedman(oldT + step,old_a + step*k3,sw);
+    k1 = equations(oldT,old_a,sw,simType,t0);
+    k2 = equations(oldT + step/2,old_a + (step/2)*k1,sw,simType,t0);
+    k3 = equations(oldT + step/2,old_a + (step/2)*k2,sw,simType,t0);
+    k4 = equations(oldT + step,old_a + step*k3,sw,simType,t0);
    
     nextT = oldT + step;
     next_a = old_a + (step/6)*(k1 + 2*k2 + 2*k3 + k4);
-    
-    if imag(next_a)~=0
-        break;
-    end
-   
+    % if imag(next_a)~=0
+    %    break;
+   %end
     a_array = [a_array next_a];
     t_array = [t_array nextT];
     
@@ -63,6 +62,8 @@ xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$a(t)$','FontSize',14,'interpreter','latex');
 title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
+
+
 subplot(2,2,2);
 plot(t_array,aPrime_array,'LineWidth',2);
 
@@ -75,6 +76,3 @@ plot(t_array,aDoublePrime_array,'LineWidth',2);
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
 title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
-
-
-

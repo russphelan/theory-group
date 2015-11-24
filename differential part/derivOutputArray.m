@@ -7,6 +7,10 @@ function yPrime = derivOutputArray(y,x)
 
 %Returns: y' array of y'(x) values. Matches with original x values. 
 
+%error handling for input arguments
+assert(length(y)==length(x),'the argument arrays are not of equal length');
+
+%init output array
 yPrime = zeros([1 length(x)]);
 
 %difference quotient
