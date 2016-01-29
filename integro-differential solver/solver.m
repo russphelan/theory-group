@@ -21,10 +21,10 @@ step = .001; %in seconds
 totalSteps = (endInt-t0)/step;
 totalSteps = round(totalSteps) + 1;
 
-%setting up function object
-scale_factor = NaN(2,totalSteps);
+%setting up scale factor a(t) function object, and derivatives
+[scale_factor,scale_1deriv,scale_2deriv] = deal(NaN(2,totalSteps));
 for i=1:totalSteps
-    scale_factor(2,i) = (i-1)*step;
+    [scale_factor(2,i),scale_1deriv(2,i),scale_2deriv(2,i)] = deal((i-1)*step);
 end
 scale_factor(1,1) = a0; %initial conditions
 scale_factor(2,1) = t0; 
@@ -32,49 +32,42 @@ scale_factor(2,1) = t0;
 %performing iterations
 for i=1:totalSteps-1
     
+    %calculate next runge-kutta step, update array
     scale_factor = runge_step(scale_factor,step,sw,simType); %runge-kutta algorithm
     
-    scale_factor(1,2);
+    %calculate next set of derivative steps, update arrays
+    if(i>1)
+        scale_1deriv(1,i) = slope_btwn(scale_factor,i,i-1);
+    end
+    if(i>2)
+        scale_2deriv(1,i) = slope_btwn(scale_1deriv,i-1,i-2);
+    end
+    
     %error checks: 
     assert(scale_factor(1,i)>=0, 'Behavior is not well-defined for a negative scale factor');
     assert(~isnan(scale_factor(1,i)),'The scale factor is not a number');
 end
 
-
-
-% %DERIVATIVE SECTION NEEDS TO BE REWRITTEN USING SLOPE_BTWN FUNCTION
-% 
-% %derivative calculations
-% aPrime_array = derivOutputArray(a_array,t_array);
-% aDoublePrime_array = derivOutputArray(aPrime_array,t_array);
-
-
-
 %plotting
-
 lw = 1; %sets linewidth for all plots
-subplot(2,2,1);
 
+%scale factor plot
+subplot(2,2,1);
 plot(scale_factor(2,1:totalSteps),scale_factor(1,1:totalSteps),'LineWidth',lw);
- 
-%labels
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$a(t)$','FontSize',14,'interpreter','latex');
 title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
+%first derivative plot
+subplot(2,2,2);
+plot(scale_1deriv(2,1:totalSteps),scale_1deriv(1,1:totalSteps),'LineWidth',lw);
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('$\dot{a}(t)$','FontSize',14,'interpreter','latex');
+title('Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
-
-%DERIVATIVE PLOTS NOT FOR USE YET
-% 
-% subplot(2,2,2);
-% plot(t_array,aPrime_array,'LineWidth',lw);
-% 
-% xlabel('Time (s)','FontSize',14,'interpreter','latex');
-% ylabel('$\dot{a}(t)$','FontSize',14,'interpreter','latex');
-% title('Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
-% 
-% subplot(2,2,3);
-% plot(t_array,aDoublePrime_array,'LineWidth',lw);
-% xlabel('Time (s)','FontSize',14,'interpreter','latex');
-% ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
-% title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
+%second derivative plot
+subplot(2,2,3);
+plot(scale_2deriv(2,1:totalSteps),scale_2deriv(1,1:totalSteps),'LineWidth',lw);
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
+title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
