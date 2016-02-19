@@ -4,6 +4,10 @@
 
 clear all; 
 
+%Global Parameters
+widthSlice = 10; %number of step-sizes wide a single slice of the integral will be
+e = .01; %must be larger than step*widthSlice
+
 %THIS SHOULD BE CLEANED UP WHEN YOU'RE DONE WITH EVERYTHING ELSE
 
 %user dialog, initial conditions
@@ -31,6 +35,17 @@ scale_factor(2,1) = t0;
 
 %performing iterations
 for i=1:totalSteps-1
+
+    %getting most recent t value to pass to integrator. THIS SHOULDNT
+    %HAPPEN.
+    j = 1;
+    while (j<= size(scale_factor,2) && ~isnan(scale_factor(1,j)))
+        j = j+1;
+    end
+    currentT = scale_factor(2,j);
+    
+    %calculate integrals from t=t_0 to now
+    area1 = causal_nonlocal_int(t0,currentT,scale_factor,j,scale_1deriv,scale_2deriv,e,currentT,step,widthSlice);
     
     %calculate next runge-kutta step, update array
     scale_factor = runge_step(scale_factor,step,sw,simType); %runge-kutta algorithm

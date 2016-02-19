@@ -2,10 +2,6 @@ function [next_func_array] = runge_step( func_array,stepSize,sw,simType)
 %Takes a function as a 2xn array, returns the function with one more
 %Runge-Kutta solver stepSize taken. 
 
-
-%THIS NEEDS TO BE FORMULATED TO ACCESS THE FUNC_ARRAY INSTEAD OF old_t, OLDA,
-%ETC. 
-
 i = 1;
 while (i<= size(func_array,2) && ~isnan(func_array(1,i)))
     i = i+1;
