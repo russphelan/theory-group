@@ -40,4 +40,41 @@ Each element is below the pair of elements that it will be averaging. So, we do 
 \b after
 \b0  the third a(t) entry is calculated. The hope is that each entry is close enough to the previous one that this doesn\'92t cause much inaccuracy. \
 \
+These came out looking like I expected them to. Could fill in the NaN slots at the beginning and ends, but I don\'92t think it\'92s going to affect the way the plot looks. \
+\
+
+\b TODO: make causal_nonlocal_int work with a FUNCTION of scale factor function objects as its \'91f\'92, or the function it is \'91multiplying\'92 script L by. \
+\
+If it asks for values in first and second deriv that are NaN, I will know I need to stop the integral sooner. The values in the derivatives lag the values in a(t), so we cannot calculate integral steps all the way to most recent t. \
+\
+
+\b0 I have passed f, the R function, a number where I want it evaluated. Since f only takes function objects, what it really needs is an index to grab the right number from the function object. This job was performed by i, and widthSlice. \
+\
+I wrote lines in causal_nonlocal that calculate the index to look up from the t value. This is passed to the simpsons rule calc line.\
+\
+
+\b Now, the indexes being used to look up old values of scale factor derivatives in calls to f are off. They often hit the few NaN slots that are still on the ends of the derivative arrays. I also don\'92t think they are always grabbing numbers corresponding to each other. For example, it could grab the 8th scale factor point, 7th first deriv, and 6th second deriv. At least when it is addressing the history of the function, it doesn\'92t need to do this. \
+\
+
+\b0 Next step: 2/26/15: change causal_nonlocal_int to work in terms of indices of a function object instead of small steps dx. \
+\
+It seems efficient to form a new function object with R function information in solver.m. That way, the R function object can be passed to causal_nonlocal_int, and the scale factor and all its derivatives don\'92t need to come along for the ride. \
+\
+This is the way simpson\'92s rule will choose a midpoint for parabola formation. \
+\
+
+\b\fs30 step size 1
+\b0\fs24 \
+\
+
+\fs46 * * * i+2 mi+1
+\fs24 \
+
+\fs46 ** * ** i+4 mi+2
+\fs24 \
+
+\fs50 *** * *** i+6 mi+3\
+**** * **** i+8 mi+4\
+
+\b\fs30 \
 }
