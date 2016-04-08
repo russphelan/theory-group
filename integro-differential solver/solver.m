@@ -1,5 +1,5 @@
 %Author: Russell J Phelan
-%Date: 12/8/15
+%Date: 4/11/16
 %Solver script for integro-differential equations
 
 clear all; 
@@ -18,6 +18,7 @@ sw = input('Type 1 for expanding universe, 0 for contracting universe.');
 eps_steps = 1;
 parab_size = 1;
 epsilon = .01;
+N = 1;
 
 %setting up steps
 step = .001; %in seconds
@@ -75,14 +76,29 @@ for curr_t_index=1:totalSteps-1
     %calculate third r_func from classical vals
     r_func3 = r_funcs(r_func3,curr_t_index,scale_factor,scale_1deriv,scale_2deriv,3);
     
-    %calculate area for current t val from the 3 r_funcs
+    %calculate area for current t val from the first r_func
     if(curr_t_index>20)
-         %integrate from t=t0 to current t
-         area = causal_nonlocal_int(1, curr_t_index, r_func1, r_func2, r_func3, epsilon, step, parab_size);
-         area_matrix = [area_matrix area]; %storing area for plotting
+         %integrate from t=t0 to current t for each of the three integrals
+         area1 = causal_nonlocal_int(1, curr_t_index, r_func1, epsilon, step, parab_size);
+         area2 = causal_nonlocal_int(1, curr_t_index, r_func2, epsilon, step, parab_size);
+         area3 = causal_nonlocal_int(1, curr_t_index, r_func3, epsilon, step, parab_size);
+         
+         %set coefficients for combining areas
+         coef1 = 6*sqrt(scale_factor(1,curr_t_index))*scale_2deriv(1,curr_t_index-1);
+         coef2 = 6*scale_1deriv(1,curr_t_index-1)/sqrt(scale_factor(1,curr_t_index));
+         coef3 = 12*sqrt(scale_factor(1,curr_t_index))*scale_1deriv(1,curr_t_index-1);
+         
+         %the actual combining of areas
+         area = N*(coef1*area1 + coef2*area2 + coef3*area3); 
+         
+         %storing area for plotting
+         area_matrix = [area_matrix area]; 
     end
     
+    
+    
     %calculate next runge_step using the area just calculated
+
 end
 
 %plotting
