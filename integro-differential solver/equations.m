@@ -1,7 +1,7 @@
 %Author: Russell J. Phelan 
 %Date: 10-19-15
 
-function [a_prime] = equations(t,a,expandContract,simType,t0)
+function [a_prime] = equations(t,a,expandContract,simType,t0,area)
 
 %error conditions
 swError = 'The Expand/Contract switch parameter to the Friedmann equation was set improperly. Needs 1 or 0';
@@ -56,7 +56,15 @@ end
 return;
 
     case 2
-        %NOT YET IMPLEMENTED
+        p=1;
+        %QUANTUM CORRECTION, NUMERICAL INTEGRALS
+        if expandContract==1
+            a_prime = sqrt(8*pi/3*(a^2*p-1/a*area));
+        elseif expandContract==0
+            a_prime = -sqrt(8*pi/3*(a^2*p-1/a*area));
+        end
+    return;
+        
 end
 end
 

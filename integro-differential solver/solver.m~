@@ -9,6 +9,7 @@ clear all;
 %user dialog, initial conditions
 simType = input('Choose simulation type: \n(0)Classical Friedmann \n(1)Quantum Approximation \n(2)Full Quantum Behavior');
 
+assert(simType ~= 2,'Full quantum correction not yet implemented');
 
 t0 = input('Enter initial time: (seconds)');
 endInt = input('Enter end time: (seconds)');
@@ -17,7 +18,7 @@ sw = input('Type 1 for expanding universe, 0 for contracting universe.');
 eps_steps = 1;
 parab_size = 1;
 epsilon = .01;
-N = 100;
+N = 1;
 
 %setting up steps
 step = .001; %in seconds
@@ -25,7 +26,7 @@ totalSteps = (endInt-t0)/step;
 totalSteps = round(totalSteps) + 1;
 
 %setting up scale factor a(t) function object, and derivatives
-[scale_factor,scale_1deriv,scale_2deriv,r_func1,r_func2,r_func3,basem_scale_factor] = deal(NaN(2,totalSteps));
+[scale_factor,scale_1deriv,scale_2deriv,r_func] = deal(NaN(2,totalSteps));
 for i=1:totalSteps
     [scale_factor(2,i),scale_1deriv(2,i),scale_2deriv(2,i),basem_scale_factor(2,i),r_func1(2,i),r_func2(2,i),r_func3(2,i)] = deal((i-1)*step);
 end
@@ -95,10 +96,14 @@ for curr_t_index=1:totalSteps-1
          area_matrix = [area_matrix area]; 
          
          %calculate next runge_step using the area just calculated
-         basem_scale_factor = runge_step(basem_scale_factor,area,step,sw,2); %runge-kutta algorithm
+         basem_scale_factor = runge_step(basem_scale_factor,,step,sw,simType); %runge-kutta algorithm
     else
-         basem_scale_factor = runge_step(basem_scale_factor,0,step,sw,2); %runge-kutta algorithm
+        
+        
     end
+    
+    
+
 end
 
 %plotting
@@ -132,9 +137,9 @@ xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
 title('Area','FontSize',18,'FontWeight','bold','interpreter','latex');
 
-%basem scale factor plot
+%scale factor plot
 subplot(2,3,5);
 plot(basem_scale_factor(2,1:totalSteps),basem_scale_factor(1,1:totalSteps),'LineWidth',lw);
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$a(t)$','FontSize',14,'interpreter','latex');
-title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
+title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
