@@ -1,7 +1,7 @@
 %Author: Russell J. Phelan 
 %Date: 10-5-15
 
-function area = causal_nonlocal_int(start_index, end_index, r_func, epsilon,step_size,parab_size)
+function area = causal_nonlocal_int(start_index, end_index, r_func1, r_func2, r_func3, epsilon,step_size,parab_size)
 %Causal non-local function implemented with small epsilon in place of
 %limiting process. prints error. dx must be smaller than e. e<<1 is also required. 
 %start_index is the index of a function object where we want to start
@@ -22,25 +22,52 @@ function area = causal_nonlocal_int(start_index, end_index, r_func, epsilon,step
 %simpson's rule implementation. here, dx is what we call dtPrime in the
 %paper.
 
-t=r_func(2,end_index); %current t passed to this function
+t=r_func1(2,end_index); %current t passed to this function
 
 
 area = 0;
 
+%first integral, with R1
 for i=start_index:end_index-1
     a = i;
     mid = i + parab_size;
     b = i + 2*parab_size;
     
-    area = area + r_func(1,a)*(r_func(2,b)-r_func(2,a));
+    area = area + r_func1(1,a)*(r_func1(2,b)-r_func1(2,a));
     
     %area = area + ((r_func(2,b)-r_func(2,a))/6)*r_func(1,a)/(t-r_func(2,a)) + 4*r_func(1,mid)/(t-r_func(2,mid)) + r_func(1,b)/(t-r_func(2,b))
 end
 
 %implements delta function term to compensate for divergence
-area = area + log(epsilon)*r_func(1,end_index);
+area = area + log(epsilon)*r_func1(1,end_index);
 
+%second integral, for R2
+for i=start_index:end_index-1
+    a = i;
+    mid = i + parab_size;
+    b = i + 2*parab_size;
+    
+    area = area + r_func2(1,a)*(r_func2(2,b)-r_func2(2,a));
+    
+    %area = area + ((r_func(2,b)-r_func(2,a))/6)*r_func(1,a)/(t-r_func(2,a)) + 4*r_func(1,mid)/(t-r_func(2,mid)) + r_func(1,b)/(t-r_func(2,b))
+end
 
+%implements delta function term to compensate for divergence
+area = area + log(epsilon)*r_func2(1,end_index);
+
+%third integral, for R3
+for i=start_index:end_index-1
+    a = i;
+    mid = i + parab_size;
+    b = i + 2*parab_size;
+    
+    area = area + r_func3(1,a)*(r_func3(2,b)-r_func3(2,a));
+    
+    %area = area + ((r_func(2,b)-r_func(2,a))/6)*r_func(1,a)/(t-r_func(2,a)) + 4*r_func(1,mid)/(t-r_func(2,mid)) + r_func(1,b)/(t-r_func(2,b))
+end
+
+%implements delta function term to compensate for divergence
+area = area + log(epsilon)*r_func3(1,end_index);
 
 
 %sprintf('end index is : %f',end_index)

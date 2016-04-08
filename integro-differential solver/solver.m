@@ -27,24 +27,24 @@ totalSteps = round(totalSteps) + 1;
 %setting up scale factor a(t) function object, and derivatives
 [scale_factor,scale_1deriv,scale_2deriv,r_func] = deal(NaN(2,totalSteps));
 for i=1:totalSteps
-    [scale_factor(2,i),scale_1deriv(2,i),scale_2deriv(2,i),r_func(2,i)] = deal((i-1)*step);
+    [scale_factor(2,i),scale_1deriv(2,i),scale_2deriv(2,i),r_func1(2,i),r_func2(2,i),r_func3(2,i)] = deal((i-1)*step);
 end
 scale_factor(1,1) = a0; %initial conditions
 scale_factor(2,1) = t0; 
 area_matrix = [];
 
-%performing iterations
+%performing iterations for classical behavior
 for curr_t_index=1:totalSteps-1
     
     %calculate next step of R function. going to be passed to
     %causal_nonlocal
-    r_func = r_funcs(r_func,curr_t_index,scale_factor,scale_1deriv,scale_2deriv,1);
-    
-    if(curr_t_index>20)
-        %integrate from t=t0 to current t
-        area = causal_nonlocal_int(1, curr_t_index, r_func, epsilon, step, parab_size);
-        area_matrix = [area_matrix area];
-    end
+%     r_func = r_funcs(r_func,curr_t_index,scale_factor,scale_1deriv,scale_2deriv,1);
+%     
+%     if(curr_t_index>20)
+%         %integrate from t=t0 to current t
+%         area = causal_nonlocal_int(1, curr_t_index, r_func, epsilon, step, parab_size);
+%         area_matrix = [area_matrix area];
+%     end
     
     %calculate next runge-kutta step, update array
     scale_factor = runge_step(scale_factor,step,sw,simType); %runge-kutta algorithm
@@ -60,6 +60,29 @@ for curr_t_index=1:totalSteps-1
     %error checks: 
     assert(scale_factor(1,curr_t_index)>=0, 'Behavior is not well-defined for a negative scale factor');
     assert(~isnan(scale_factor(1,curr_t_index)),'The scale factor is not a number');
+end
+
+%performing iterations to reproduce Basem's plots
+
+for curr_t_index=1:totalSteps-1
+    
+    %calculate first r_func from classical vals
+    r_func1 = r_funcs(r_func1,curr_t_index,scale_factor,scale_1deriv,scale_2deriv,1);
+    
+    %calculate second r_func from classical vals
+    r_func2 = r_funcs(r_func2,curr_t_index,scale_factor,scale_1deriv,scale_2deriv,2);
+    
+    %calculate third r_func from classical vals
+    r_func3 = r_funcs(r_func3,curr_t_index,scale_factor,scale_1deriv,scale_2deriv,3);
+    
+    %calculate area for current t val from the 3 r_funcs
+    if(curr_t_index>20)
+         %integrate from t=t0 to current t
+         area = causal_nonlocal_int(1, curr_t_index, r_func1, r_func2, r_func3, epsilon, step, parab_size);
+         area_matrix = [area_matrix area]; %storing area for plotting
+    end
+    
+    %calculate next runge_step using the area just calculated
 end
 
 %plotting
