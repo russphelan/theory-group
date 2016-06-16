@@ -31,21 +31,20 @@ if t < 4+rect_index
     
 end
 
-for i=4+1:rect_index:t-e_index-1
-    %display(1/(r_func(2,t)-r_func(2,i)))
+for i=1+1:rect_index:t-1
  
-    sum = sum + 2*1/(r_func(2,t)-r_func(2,i))*r_func(1,i); %summing over all terms with 2 coefficient, multiplying each by 1/(t-t')
+    sum = sum + 2*r_func(1,i); %summing over all terms with 2 coefficient, multiplying each by 1/(t-t')
     N = N+1;
     
 end
 
 N = N+1; %would be N+2, since we are about to add two more points, but the number of panels is the number of points-1. Can be understood with a drawing. the points bound the rectangle in terms of the independent variable. 
 
-sum = sum + 1/(r_func(2,t)-r_func(2,4))*r_func(1,4) + 1/(r_func(2,t)-r_func(2,t-e_index))*r_func(1,t-e_index); %adding the first term, and last term, which have no 2 coefficient, multiplying by 1/(t-t')
+sum = sum + r_func(1,1) + r_func(1,t); %adding the first term, and last term, which have no 2 coefficient, multiplying by 1/(t-t')
 
-area = (r_func(2,t)-e-r_func(2,4))/2/N*sum; %multiplying by trapezoid rule coefficient
+area = (r_func(2,t)-r_func(2,1))/2/N*sum; %multiplying by trapezoid rule coefficient
 
-area = area + log(Mu_r*e)*r_func(1,t); %implements delta function term to compensate for divergence
+%area = area + log(Mu_r*e)*r_func(1,t); %implements delta function term to compensate for divergence
 
 %sprintf('end index is : %f',end_index)
 %sprintf('r_func is : %f',r_func(1,end_index))

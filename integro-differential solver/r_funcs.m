@@ -26,7 +26,7 @@ switch(which_r)
             - scale_1deriv(1,t)^2/2/scale_factor(1,t)^(3/2));
         
     case 4 %for testing integrator
-        r_func(1,t) = 1;  %cos(r_func(2,t));
+        r_func(1,t) = 1/sqrt(r_func(2,t)^2 + 1);%cos(r_func(2,t));
         
     otherwise
         error('The switch parameter for choosing the R function does not correspond to any of the current functions');
