@@ -1,46 +1,51 @@
 %Author: Russell J. Phelan 
-%Date: 10-5-15
+%Date: 6-16-16
 
-function area = causal_nonlocal_int(start_index, end_index, r_func, epsilon,step_size,parab_size)
+function area = causal_nonlocal_int(t, r_func, e, step, rect_thickness)
 %Causal non-local function implemented with small epsilon in place of
-%limiting process. prints error. dx must be smaller than e. e<<1 is also required. 
-%start_index is the index of a function object where we want to start
-%integrating the function. end_index works same way. 
-
-%eps_steps is number of steps before end_index that we will integrate to.
-%The size of epsilon can be calculated by eps_steps*step where step is the
-%step size from "solver.m". 
+%limiting process. dx must be smaller than e. e<<1 is also required. 
+%t is index where we want to end integration, the current t value 
 
 %step size is integer which determines over how many steps a single
 %parabola will approximate
 
 %Causal non-local function implemented with small epsilon in place of
-%limiting process. prints error. dx must be smaller than e. e<<1 is also required. 
+%limiting process. step must be smaller than e. e<<1 is also required. 
 
+%t is an index, gives current t value in calling script when indexed into
+%the independent var of a function object
 
-%INTEGRAL CALCULATION
-%simpson's rule implementation. here, dx is what we call dtPrime in the
-%paper.
+Mu_r = 1;                               %normalization constant
+rect_index = ceil(rect_thickness/step); %index interval that corresponds to the thickness of a rectangle, panel, trapezoid, etc when indexed into the independent var of a function object
+e_index = ceil(e/step);                 %index interval that corresponds to size of e when used to index into the independent variable of a function object
+area = 0;                               %area under the curve. this is returned when the function returns. 
+sum = 0;                                %stores a running sum of the integral. does not repesent area under curve until end points are added, and coefficient is multiplied
+N = 0;                                  %represents number of panels, or trapezoids used to integrate
 
-t=r_func(2,end_index); %current t passed to this function
-
-
-area = 0;
-
-%first integral, with R1
-for i=start_index:end_index-1
-    a = i;
-    mid = i + parab_size;
-    b = i + 2*parab_size;
+%don't start calculating area until t index is late enough to give us room to
+%fit in at least one rectangle of the specified thickness
+if t < 4+rect_index
     
-    area = area + r_func(1,a)*(r_func(2,b)-r_func(2,a));
+    area = 0;
+    return;
     
-    %area = area + ((r_func(2,b)-r_func(2,a))/6)*r_func(1,a)/(t-r_func(2,a)) + 4*r_func(1,mid)/(t-r_func(2,mid)) + r_func(1,b)/(t-r_func(2,b))
 end
 
-%implements delta function term to compensate for divergence
-area = area + log(epsilon)*r_func(1,end_index);
+for i=4+1:rect_index:t-e_index-1
+    %display(1/(r_func(2,t)-r_func(2,i)))
+ 
+    sum = sum + 2*1/(r_func(2,t)-r_func(2,i))*r_func(1,i); %summing over all terms with 2 coefficient, multiplying each by 1/(t-t')
+    N = N+1;
+    
+end
 
+N = N+1; %would be N+2, since we are about to add two more points, but the number of panels is the number of points-1. Can be understood with a drawing. the points bound the rectangle in terms of the independent variable. 
+
+sum = sum + 1/(r_func(2,t)-r_func(2,4))*r_func(1,4) + 1/(r_func(2,t)-r_func(2,t-e_index))*r_func(1,t-e_index); %adding the first term, and last term, which have no 2 coefficient, multiplying by 1/(t-t')
+
+area = (r_func(2,t)-e-r_func(2,4))/2/N*sum; %multiplying by trapezoid rule coefficient
+
+area = area + log(Mu_r*e)*r_func(1,t); %implements delta function term to compensate for divergence
 
 %sprintf('end index is : %f',end_index)
 %sprintf('r_func is : %f',r_func(1,end_index))
