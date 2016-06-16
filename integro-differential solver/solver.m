@@ -12,10 +12,10 @@ tf = input('Enter end time: (seconds)');
 a0 = input('Enter intial scale factor value: (dimensionless)');
 expand_or_contract = input('Type 1 for expanding universe, 0 for contracting universe.'); %chooses which branch of scale factor equations to use
 
-rect_thickness = .001;
-e = .001;
+rect_thickness = .0001;
+e = .0001;
 N = 1; %number of scalars, also N_s in paper. 
-step = .001; %in seconds
+step = .0001; %in seconds
 total_steps = (tf-t0)/step;
 total_steps = ceil(total_steps) + 1;
 
