@@ -5,17 +5,19 @@
 clear all; 
 
 %INITIAL CONDITIONS/PARAMETERS
-simType = input('Choose simulation type: \n(0)Classical Friedmann \n(1)Quantum Approximation \n(2)Full Quantum Behavior');
-
+%simType = input('Choose simulation type: \n(0)Classical Friedmann \n(1)Quantum Approximation \n(2)Full Quantum Behavior');
+simType = 0; %for testing
 t0 = input('Enter initial time: (seconds)');
 tf = input('Enter end time: (seconds)');
-a0 = input('Enter intial scale factor value: (dimensionless)');
-expand_or_contract = input('Type 1 for expanding universe, 0 for contracting universe.'); %chooses which branch of scale factor equations to use
+%a0 = input('Enter intial scale factor value: (dimensionless)');
+a0 = 1; %for testing
+%expand_or_contract = input('Type 1 for expanding universe, 0 for contracting universe.'); %chooses which branch of scale factor equations to use
+expand_or_contract = 0; %for testing
 
-rect_thickness = .0001;
-e = .0001;
-N = 1; %number of scalars, also N_s in paper. 
-step = .0001; %in seconds
+rect_thickness = .001;
+e = .001;
+N = 100; %number of scalars, also N_s in paper. 
+step = .001; %in seconds
 total_steps = (tf-t0)/step;
 total_steps = ceil(total_steps) + 1;
 
@@ -158,15 +160,15 @@ ylabel('Area from $t_0$','FontSize',14,'interpreter','latex');
 title('Area','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem scale factor plot
-% subplot(2,3,6);
-% plot(basem_scale_factor(2,1:total_steps),basem_scale_factor(1,1:total_steps),'LineWidth',lw);
-% xlabel('Time (s)','FontSize',14,'interpreter','latex');
-% ylabel('$a(t)$','FontSize',14,'interpreter','latex');
-% title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
+subplot(2,3,6);
+plot(basem_scale_factor(2,1:total_steps),basem_scale_factor(1,1:total_steps),'LineWidth',lw);
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('$a(t)$','FontSize',14,'interpreter','latex');
+title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem area comparison function, contraction
-subplot(2,3,6);
-plot(t,basem_area,'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('Area from $-\infty$','FontSize',14,'interpreter','latex');
-title('Basem Area ','FontSize',18,'FontWeight','bold','interpreter','latex');
+% subplot(2,3,6);
+% plot(t,basem_area,'LineWidth',lw);
+% xlabel('Time (s)','FontSize',14,'interpreter','latex');
+% ylabel('Area from $-\infty$','FontSize',14,'interpreter','latex');
+% title('Basem Area ','FontSize',18,'FontWeight','bold','interpreter','latex');

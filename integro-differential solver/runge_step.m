@@ -20,7 +20,8 @@ k3 = equations(old_t + stepSize/2,old_a + (stepSize/2)*k2,expand_or_contract,sim
 k4 = equations(old_t + stepSize,old_a + stepSize*k3,expand_or_contract,simType,t0,area);
   
 if(~isreal(k1) || ~isreal(k2) || ~isreal(k3) || ~isreal(k4))
-    next_a = NaN;
+    %display('things got complex')
+    next_a = NaN; %real(old_a + (stepSize/6)*(k1 + 2*k2 + 2*k3 + k4)); 
 else
     next_a = old_a + (stepSize/6)*(k1 + 2*k2 + 2*k3 + k4);
 end
