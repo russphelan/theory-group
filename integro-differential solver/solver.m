@@ -9,8 +9,8 @@ clear all;
 simType = 0; %for testing
 t0 = input('Enter initial time: (seconds)');
 tf = input('Enter end time: (seconds)');
-%a0 = input('Enter intial scale factor value: (dimensionless)');
-a0 = 1; %for testing
+a0 = input('Enter intial scale factor value: (dimensionless)');
+%a0 = 1; %for testing
 %expand_or_contract = input('Type 1 for expanding universe, 0 for contracting universe.'); %chooses which branch of scale factor equations to use
 expand_or_contract = 0; %for testing
 
@@ -23,14 +23,14 @@ total_steps = ceil(total_steps) + 1;
 
 %setting up functions filled with NaNs, and t values, spaced by the step. 
 %NaNs are first row, t values are second row. 
-[scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,r_func1,r_func2,r_func3,basem_scale_factor] = deal(NaN(2,total_steps));
+[scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,r_func1,r_func2,r_func3,basem_scale_factor,basem_scale_1deriv] = deal(NaN(2,total_steps));
 for i=1:total_steps
-    [scale_factor(2,i),scale_1deriv(2,i),scale_2deriv(2,i),scale_3deriv(2,i),basem_scale_factor(2,i),r_func1(2,i),r_func2(2,i),r_func3(2,i)] = deal(t0 + (i-1)*step);
+    [scale_factor(2,i),scale_1deriv(2,i),scale_2deriv(2,i),scale_3deriv(2,i),basem_scale_factor(2,i),basem_scale_1deriv(2,i),r_func1(2,i),r_func2(2,i),r_func3(2,i)] = deal(t0 + (i-1)*step);
 end
 
 scale_factor(1,1) = a0; %initial conditions
 basem_scale_factor(1,1) = a0; %initial conditions
-area_matrix = [];
+area_matrix = [0 0 0];
 
 %CLASSICAL ITERATIONS
 for curr_t_index=1:total_steps
@@ -97,8 +97,14 @@ for t=1:total_steps
         
         %calculate next runge_step using the area just calculated
         basem_scale_factor = runge_step(basem_scale_factor,t,area,step,expand_or_contract,2); %runge-kutta algorithm
+        if t>=2
+            basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-1);
+        end
     else
         basem_scale_factor = runge_step(basem_scale_factor,t,0,step,expand_or_contract,2); %runge-kutta algorithm
+        if t>=2
+            basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-1);
+        end
     end
 end
 
@@ -119,17 +125,17 @@ end
 %N_s/2430/pi*(19*(log(Mu_r*a)+log(a/t0-1))/a^2/t0^2+26*(log(Mu_r*a)+log(a/t0-1)+(a/t0-1))/a^2/t0^2)
 
 %Contracting phase function
-basem_area = -N_s/2430/pi*(19*log(-Mu_r.*t)/t0^2./t.^2 + 26*(log(-Mu_r.*t)+1)/t0^2./t.^2);
+%basem_area = -N_s/2430/pi*(19*log(-Mu_r.*t)/t0^2./t.^2 + 26*(log(-Mu_r.*t)+1)/t0^2./t.^2);
 
 %plotting
 lw = 1; %sets linewidth for all plots
 
 %scale factor plot
-subplot(2,3,1);
-plot(scale_factor(2,1:total_steps),scale_factor(1,1:total_steps),'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('$a(t)$','FontSize',14,'interpreter','latex');
-title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
+ subplot(2,3,1);
+ plot(scale_factor(2,1:total_steps),scale_factor(1,1:total_steps),'LineWidth',lw);
+ xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ ylabel('$a(t)$','FontSize',14,'interpreter','latex');
+ title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %first derivative plot
 subplot(2,3,2);
@@ -139,36 +145,43 @@ ylabel('$\dot{a}(t)$','FontSize',14,'interpreter','latex');
 title('Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %second derivative plot
-subplot(2,3,3);
-plot(scale_2deriv(2,1:total_steps),scale_2deriv(1,1:total_steps),'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
-title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
+% subplot(2,3,3);
+% plot(scale_2deriv(2,1:total_steps),scale_2deriv(1,1:total_steps),'LineWidth',lw);
+% xlabel('Time (s)','FontSize',14,'interpreter','latex');
+% ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
+% title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %third derivative plot
-subplot(2,3,4);
-plot(scale_3deriv(2,1:total_steps),scale_3deriv(1,1:total_steps),'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
-title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
+% subplot(2,3,4);
+% plot(scale_3deriv(2,1:total_steps),scale_3deriv(1,1:total_steps),'LineWidth',lw);
+% xlabel('Time (s)','FontSize',14,'interpreter','latex');
+% ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
+% title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %area plot
-subplot(2,3,5);
-plot(scale_2deriv(2,1:length(area_matrix)),area_matrix(1,:),'LineWidth',lw);
+subplot(2,3,3);
+plot(scale_2deriv(2,1:length(area_matrix)),area_matrix(1,:),'LineWidth',lw,'Color','r');
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('Area from $t_0$','FontSize',14,'interpreter','latex');
 title('Area','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem scale factor plot
-subplot(2,3,6);
+subplot(2,3,4);
 plot(basem_scale_factor(2,1:total_steps),basem_scale_factor(1,1:total_steps),'LineWidth',lw);
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$a(t)$','FontSize',14,'interpreter','latex');
 title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
+%basem scale factor derivative plot
+subplot(2,3,5);
+plot(basem_scale_1deriv(2,1:total_steps),basem_scale_1deriv(1,1:total_steps),'LineWidth',lw);
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('$a(t)$','FontSize',14,'interpreter','latex');
+title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
+
 %basem area comparison function, contraction
-% subplot(2,3,6);
-% plot(t,basem_area,'LineWidth',lw);
-% xlabel('Time (s)','FontSize',14,'interpreter','latex');
-% ylabel('Area from $-\infty$','FontSize',14,'interpreter','latex');
-% title('Basem Area ','FontSize',18,'FontWeight','bold','interpreter','latex');
+subplot(2,3,6);
+plot(t,basem_area,'LineWidth',lw);
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('Area from $-\infty$','FontSize',14,'interpreter','latex');
+title('Basem Area ','FontSize',18,'FontWeight','bold','interpreter','latex');

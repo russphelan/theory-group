@@ -17,7 +17,7 @@ switch simType
 %CLASSICAL BEHAVIOR
 %requires a>0. Program will terminate if a_prime values become complex. 
 g = 1; %Newton's gravitational constant
-p = 1/6/pi/t0^2; %density of dust
+p = 1/6/pi/(10^2); %density of dust
 
 
 if expand_or_contract==1
@@ -62,7 +62,7 @@ return;
         if expand_or_contract==1
             a_prime = sqrt(8*pi/3*(a^2*p-1/a*area));
         elseif expand_or_contract==0
-            a_prime = -sqrt(8*pi/3/a*(p-area));
+            a_prime = -sqrt(8*pi/3/a*(p+area));
         end
     return;
 end
