@@ -4,6 +4,12 @@
 function new_r_func = r_funcs(r_func,t,scale_factor,scale_1deriv,scale_2deriv, scale_3deriv,which_r)
 %function for multiplying by script L. Stores all of the R functions. 
 
+if t<4
+    r_func(1,t) = NaN;
+    new_r_func = r_func;
+    return;
+end
+
 alpha=5/11520/pi^2;
 beta=-2/11520/pi^2;
 gamma=2/11520/pi^2;
