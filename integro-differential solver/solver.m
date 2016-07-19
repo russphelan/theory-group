@@ -15,9 +15,6 @@ tf = -.1;
 a0 = 1; %for testing
 %expand_or_contract = input('Type 1 for expanding universe, 0 for contracting universe.'); %chooses which branch of scale factor equations to use
 expand_or_contract = 0; %for testing
-area_on_index = 2000; %index at which area integral begins being calculated, instead of returned as 0. 
-ease_finish = 100000000000+100000000000; %number of steps before area term is completely eased in. 
-ease_slope = 1/(ease_finish-area_on_index); %chosen so that linear ease maximum is 1.
 
 rect_thickness = .001;
 e = .001;
@@ -25,6 +22,12 @@ N = 100; %number of scalars, also N_s in paper.
 step = .001; %in seconds
 total_steps = (tf-t0)/step;
 total_steps = ceil(total_steps) + 1;
+
+area_on_index = 2000; %index at which area integral begins being calculated, instead of returned as 0. 
+ease_finish_seconds = 100000000; %this is in units of time since the simulation began. Always positive. At this time, the linear ease function will become equal to 1. 
+ease_finish = ease_finish_seconds/step; %calculating index at which ease_finish_seconds will be reached.
+%ease_finish = 100000000000; %number of steps before area term is completely eased in. 
+ease_slope = 1/(ease_finish-area_on_index); %chosen so that linear ease maximum is 1.
 
 %setting up functions filled with NaNs, and t values, spaced by the step. 
 %NaNs are first row, t values are second row. 
@@ -44,7 +47,7 @@ for curr_t_index=1:total_steps
     if curr_t_index < area_on_index
         ease = 0;
     else
-        ease = (ease_slope*curr_t_index - ease_slope*area_on_index)*heaviside(ease_finish-curr_t_index) + heaviside(curr_t_index - ease_finish);
+        ease = (ease_slope*curr_t_index - ease_slope*area_on_index)*heaviside(ease_finish-curr_t_index) + heaviside(curr_t_index - ease_finish)
     end
     %calculate next runge-kutta step, update array, 0 is for no area
     scale_factor = runge_step(scale_factor,curr_t_index,area,step,expand_or_contract,simType,ease); %runge-kutta algorithm
@@ -139,14 +142,14 @@ end
 lw = 1; %sets linewidth for all plots
 
 %scale factor plot
- subplot(2,3,1);
- plot(scale_factor(2,1:total_steps),scale_factor(1,1:total_steps),'LineWidth',lw);
- xlabel('Time (s)','FontSize',14,'interpreter','latex');
- ylabel('$a(t)$','FontSize',14,'interpreter','latex');
- title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
+%  subplot(1,3,1);
+%  plot(scale_factor(2,1:total_steps),scale_factor(1,1:total_steps),'LineWidth',lw);
+%  xlabel('Time (s)','FontSize',14,'interpreter','latex');
+%  ylabel('$a(t)$','FontSize',14,'interpreter','latex');
+%  title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %first derivative plot
-subplot(2,3,2);
+subplot(1,2,1);
 plot(scale_1deriv(2,1:total_steps),scale_1deriv(1,1:total_steps),'LineWidth',lw);
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$\dot{a}(t)$','FontSize',14,'interpreter','latex');
@@ -167,25 +170,25 @@ title('Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 % title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %area plot
-subplot(2,3,3);
+subplot(1,2,2);
 plot(scale_2deriv(2,1:length(area_matrix)),area_matrix(1,:),'LineWidth',lw,'Color','r');
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('Area from $t_0$','FontSize',14,'interpreter','latex');
 title('Area','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem scale factor plot
-subplot(2,3,4);
-plot(basem_scale_factor(2,1:total_steps),basem_scale_factor(1,1:total_steps),'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('$a(t)$','FontSize',14,'interpreter','latex');
-title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
+% subplot(2,3,4);
+% plot(basem_scale_factor(2,1:total_steps),basem_scale_factor(1,1:total_steps),'LineWidth',lw);
+% xlabel('Time (s)','FontSize',14,'interpreter','latex');
+% ylabel('$a(t)$','FontSize',14,'interpreter','latex');
+% title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem scale factor derivative plot
-subplot(2,3,5);
-plot(basem_scale_1deriv(2,1:total_steps),basem_scale_1deriv(1,1:total_steps),'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('$a(t)$','FontSize',14,'interpreter','latex');
-title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
+% subplot(2,3,5);
+% plot(basem_scale_1deriv(2,1:total_steps),basem_scale_1deriv(1,1:total_steps),'LineWidth',lw);
+% xlabel('Time (s)','FontSize',14,'interpreter','latex');
+% ylabel('$a(t)$','FontSize',14,'interpreter','latex');
+% title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem area comparison function, contraction
 % subplot(2,3,6);
