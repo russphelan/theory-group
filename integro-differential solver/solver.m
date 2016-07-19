@@ -6,13 +6,18 @@ clear all;
 
 %INITIAL CONDITIONS/PARAMETERS
 %simType = input('Choose simulation type: \n(0)Classical Friedmann \n(1)Quantum Approximation \n(2)Full Quantum Behavior');
-simType = 0; %for testing
-t0 = input('Enter initial time: (seconds)');
-tf = input('Enter end time: (seconds)');
-a0 = input('Enter intial scale factor value: (dimensionless)');
-%a0 = 1; %for testing
+simType = 2; %for testing
+%t0 = input('Enter initial time: (seconds)');
+t0 = -10;
+%tf = input('Enter end time: (seconds)');
+tf = -.1;
+%a0 = input('Enter intial scale factor value: (dimensionless)');
+a0 = 1; %for testing
 %expand_or_contract = input('Type 1 for expanding universe, 0 for contracting universe.'); %chooses which branch of scale factor equations to use
 expand_or_contract = 0; %for testing
+area_on_index = 2000; %index at which area integral begins being calculated, instead of returned as 0. 
+ease_finish = 100000000000+100000000000; %number of steps before area term is completely eased in. 
+ease_slope = 1/(ease_finish-area_on_index); %chosen so that linear ease maximum is 1.
 
 rect_thickness = .001;
 e = .001;
@@ -31,12 +36,18 @@ end
 scale_factor(1,1) = a0; %initial conditions
 basem_scale_factor(1,1) = a0; %initial conditions
 area_matrix = [0 0 0];
+area = 0;
 
 %CLASSICAL ITERATIONS
 for curr_t_index=1:total_steps
-    
+   
+    if curr_t_index < area_on_index
+        ease = 0;
+    else
+        ease = (ease_slope*curr_t_index - ease_slope*area_on_index)*heaviside(ease_finish-curr_t_index) + heaviside(curr_t_index - ease_finish);
+    end
     %calculate next runge-kutta step, update array, 0 is for no area
-    scale_factor = runge_step(scale_factor,curr_t_index,0,step,expand_or_contract,simType); %runge-kutta algorithm
+    scale_factor = runge_step(scale_factor,curr_t_index,area,step,expand_or_contract,simType,ease); %runge-kutta algorithm
     
     %calculate next set of derivative steps, update arrays
     if(curr_t_index>=2)
@@ -50,7 +61,7 @@ for curr_t_index=1:total_steps
     end
     
     %ERROR CHECKS
-    assert(scale_factor(1,curr_t_index)>=0, 'Behavior is not well-defined for a negative scale factor');
+    %assert(scale_factor(1,curr_t_index)>=0, 'Behavior is not well-defined for a negative scale factor');
     
     %stops iterations when scale factor becomes NaN, but you can still see
     %the plot thus far. Notifies user. 
@@ -60,51 +71,48 @@ for curr_t_index=1:total_steps
     end
     
     %stops iterations when scale factor becomes complex, letting you see
-    %the plots thus far. Notifies user. 
+    %the plots thus far. Notifies user.
     if(~isreal(scale_factor(1,curr_t_index)))
         display('scale factor is complex at last iteration')
         break;
     end
-end
-
-%NUMERICAL AREA
-for t=1:total_steps
     
-    
-    
-    %calculate area up to current t value
-    if(t>=4)
-        %r functions
-        r_func1 = r_funcs(r_func1,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,1);
-        r_func2 = r_funcs(r_func2,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,2);
-        r_func3 = r_funcs(r_func3,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,3);
+    %r functions
+    if(curr_t_index>=4)
+        r_func1 = r_funcs(r_func1,curr_t_index,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,1);
+        r_func2 = r_funcs(r_func2,curr_t_index,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,2);
+        r_func3 = r_funcs(r_func3,curr_t_index,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,3);
         
-        %integrate from t=t0 to current t for each of the three integrals
-        area1 = causal_nonlocal_int(t, r_func1, e, step, rect_thickness);
-        area2 = causal_nonlocal_int(t, r_func2, e, step, rect_thickness);
-        area3 = causal_nonlocal_int(t, r_func3, e, step, rect_thickness);
-        
-        %set coefficients for combining areas
-        coef1 = 6*sqrt(scale_factor(1,t))*scale_2deriv(1,t);
-        coef2 = 6*scale_1deriv(1,t)^2/sqrt(scale_factor(1,t));
-        coef3 = 12*sqrt(scale_factor(1,t))*scale_1deriv(1,t);
-        
-        %the actual combining of areas
-        area = N*(coef1*area1 + coef2*area2 + coef3*area3);
-        
-        %storing area for plotting
-        area_matrix = [area_matrix area];
-        
-        %calculate next runge_step using the area just calculated
-        basem_scale_factor = runge_step(basem_scale_factor,t,area,step,expand_or_contract,2); %runge-kutta algorithm
-        if t>=2
-            basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-1);
+        if curr_t_index>=8
+            %integrate from t=t0 to current t for each of the three integrals
+            area1 = causal_nonlocal_int(curr_t_index, r_func1, e, step, rect_thickness,area_on_index);
+            area2 = causal_nonlocal_int(curr_t_index, r_func2, e, step, rect_thickness,area_on_index);
+            area3 = causal_nonlocal_int(curr_t_index, r_func3, e, step, rect_thickness,area_on_index);
+            
+            %set coefficients for combining areas
+            coef1 = 6*sqrt(scale_factor(1,curr_t_index))*scale_2deriv(1,curr_t_index);
+            coef2 = 6*scale_1deriv(1,curr_t_index)^2/sqrt(scale_factor(1,curr_t_index));
+            coef3 = 12*sqrt(scale_factor(1,curr_t_index))*scale_1deriv(1,curr_t_index);
+            
+            %the actual combining of areas
+            area = N*(coef1*area1 + coef2*area2 + coef3*area3);
+            
+            %storing area for plotting
+            area_matrix = [area_matrix area];
+        else
+            area_matrix = [area_matrix 0];
         end
-    else
-        basem_scale_factor = runge_step(basem_scale_factor,t,0,step,expand_or_contract,2); %runge-kutta algorithm
-        if t>=2
-            basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-1);
-        end
+        
+         %calculate next runge_step using the area just calculated
+%         basem_scale_factor = runge_step(basem_scale_factor,curr_t_index,area,step,expand_or_contract,2); %runge-kutta algorithm
+%         if curr_t_index>=2
+%             basem_scale_1deriv(1,curr_t_index) = slope_btwn(basem_scale_factor,curr_t_index,curr_t_index-1);
+%         end
+%     else
+%         basem_scale_factor = runge_step(basem_scale_factor,curr_t_index,0,step,expand_or_contract,2); %runge-kutta algorithm
+%         if curr_t_index>=2
+%             basem_scale_1deriv(1,curr_t_index) = slope_btwn(basem_scale_factor,curr_t_index,curr_t_index-1);
+%         end
     end
 end
 
@@ -180,8 +188,8 @@ ylabel('$a(t)$','FontSize',14,'interpreter','latex');
 title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem area comparison function, contraction
-subplot(2,3,6);
-plot(t,basem_area,'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('Area from $-\infty$','FontSize',14,'interpreter','latex');
-title('Basem Area ','FontSize',18,'FontWeight','bold','interpreter','latex');
+% subplot(2,3,6);
+% plot(t,basem_area,'LineWidth',lw);
+% xlabel('Time (s)','FontSize',14,'interpreter','latex');
+% ylabel('Area from $-\infty$','FontSize',14,'interpreter','latex');
+% title('Basem Area ','FontSize',18,'FontWeight','bold','interpreter','latex');

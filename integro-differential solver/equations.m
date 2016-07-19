@@ -1,7 +1,7 @@
 %Author: Russell J. Phelan 
 %Date: 10-19-15
 
-function [a_prime] = equations(t,a,expand_or_contract,simType,t0,area)
+function [a_prime] = equations(t,a,expand_or_contract,simType,t0,area,ease)
 
 %error conditions
 swError = 'The Expand/Contract switch parameter to the Friedmann equation was set improperly. Needs 1 or 0';
@@ -17,7 +17,7 @@ switch simType
 %CLASSICAL BEHAVIOR
 %requires a>0. Program will terminate if a_prime values become complex. 
 g = 1; %Newton's gravitational constant
-p = 1/6/pi/(10^2); %density of dust
+p = 1/6/pi/t0^2; %density of dust
 
 
 if expand_or_contract==1
@@ -60,9 +60,9 @@ return;
         p=1/6/pi/t0^2;
         %QUANTUM CORRECTION, NUMERICAL INTEGRALS
         if expand_or_contract==1
-            a_prime = sqrt(8*pi/3*(a^2*p-1/a*area));
+            a_prime = sqrt(8*pi/3*(a^2*p-1/a*ease*area));
         elseif expand_or_contract==0
-            a_prime = -sqrt(8*pi/3/a*(p+area));
+            a_prime = -sqrt(8*pi/3/a*(p+ease*area)); 
         end
     return;
 end

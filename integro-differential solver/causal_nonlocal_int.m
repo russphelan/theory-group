@@ -1,7 +1,7 @@
 %Author: Russell J. Phelan 
 %Date: 6-16-16
 
-function area = causal_nonlocal_int(t, r_func, e, step, rect_thickness)
+function area = causal_nonlocal_int(t, r_func, e, step, rect_thickness,area_on_index)
 %Causal non-local function implemented with small epsilon in place of
 %limiting process. dx must be smaller than e. e<<1 is also required. 
 %t is index where we want to end integration, the current t value 
@@ -24,7 +24,7 @@ N = 0;                                  %represents number of panels, or trapezo
 
 %don't start calculating area until t index is late enough to give us room to
 %fit in at least one rectangle of the specified thickness
-if t < 4+rect_index
+if t < area_on_index %4+rect_index
     
     area = 0;
     return;

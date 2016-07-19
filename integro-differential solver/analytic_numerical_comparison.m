@@ -51,3 +51,22 @@ plot(r_funct(2,:),diffs,'Color','b')
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('Analytic - Numerical','FontSize',14,'interpreter','latex');
 title('Residuals for $t$','FontSize',18,'FontWeight','bold','interpreter','latex');
+
+subplot(1,3,1)
+plot(r_func1(2,:),r_func1(1,:))
+subplot(1,3,2)
+plot(r_func2(2,:),r_func2(1,:))
+subplot(1,3,3)
+plot(r_func3(2,:),r_func3(1,:))
+
+
+%demonstrating negative divergence of the scale factor derivative. 
+
+%show succesful run with area=0, show algorithm is calculating step by
+%step. 
+
+%show change to using numerical area, which is shown to be correct thru
+%the first plot
+
+%
+
