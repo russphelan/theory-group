@@ -39,14 +39,14 @@ for curr_t_index=1:total_steps
     scale_factor = runge_step(scale_factor,curr_t_index,0,step,expand_or_contract,simType); %runge-kutta algorithm
     
     %calculate next set of derivative steps, update arrays
-    if(curr_t_index>=2)
-        scale_1deriv(1,curr_t_index) = slope_btwn(scale_factor,curr_t_index,curr_t_index-1);
-    end
     if(curr_t_index>=3)
-        scale_2deriv(1,curr_t_index) = slope_btwn(scale_1deriv,curr_t_index,curr_t_index-1);
+        scale_1deriv(1,curr_t_index) = slope_btwn(scale_factor,curr_t_index,curr_t_index-2);
     end
-    if(curr_t_index>=4)
-        scale_3deriv(1,curr_t_index) = slope_btwn(scale_2deriv,curr_t_index,curr_t_index-1);
+    if(curr_t_index>=5)
+        scale_2deriv(1,curr_t_index) = slope_btwn(scale_1deriv,curr_t_index,curr_t_index-2);
+    end
+    if(curr_t_index>=7)
+        scale_3deriv(1,curr_t_index) = slope_btwn(scale_2deriv,curr_t_index,curr_t_index-2);
     end
     
     %ERROR CHECKS
@@ -73,7 +73,7 @@ for t=1:total_steps
     
     
     %calculate area up to current t value
-    if(t>=4)
+    if(t>=7)
         %r functions
         r_func1 = r_funcs(r_func1,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,1);
         r_func2 = r_funcs(r_func2,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,2);
@@ -97,13 +97,12 @@ for t=1:total_steps
         
         %calculate next runge_step using the area just calculated
         basem_scale_factor = runge_step(basem_scale_factor,t,area,step,expand_or_contract,2); %runge-kutta algorithm
-        if t>=2
-            basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-1);
-        end
+        basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-2);
+        
     else
         basem_scale_factor = runge_step(basem_scale_factor,t,0,step,expand_or_contract,2); %runge-kutta algorithm
-        if t>=2
-            basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-1);
+        if t>=3
+            basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-2);
         end
     end
 end
@@ -180,8 +179,8 @@ ylabel('$a(t)$','FontSize',14,'interpreter','latex');
 title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem area comparison function, contraction
-subplot(2,3,6);
-plot(t,basem_area,'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('Area from $-\infty$','FontSize',14,'interpreter','latex');
-title('Basem Area ','FontSize',18,'FontWeight','bold','interpreter','latex');
+% subplot(2,3,6);
+% plot(t,basem_area,'LineWidth',lw);
+% xlabel('Time (s)','FontSize',14,'interpreter','latex');
+% ylabel('Area from $-\infty$','FontSize',14,'interpreter','latex');
+% title('Basem Area ','FontSize',18,'FontWeight','bold','interpreter','latex');
