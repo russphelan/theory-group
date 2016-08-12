@@ -1,12 +1,12 @@
 %Author: Russell J. Phelan 
-%Date: 1-28-16
+%Date: 8/12/16
 
 function slope = slope_btwn(f,next,prev)
-%returns slope btwn ith and jth index of function object. 
+%returns slope at point between next and prev
 
-dx = f(2,next)-f(2,prev);
+dx = f(2,prev+1)-f(2,prev);
 
-slope = (f(1,next)-f(1,prev))/dx;
+slope = (f(1,next)-f(1,prev))/2/dx;
 
 end
 
