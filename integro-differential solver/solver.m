@@ -16,23 +16,28 @@ a0 = 1; %for testing
 %expand_or_contract = input('Type 1 for expanding universe, 0 for contracting universe.'); %chooses which branch of scale factor equations to use
 expand_or_contract = 0; %for testing
 
-rect_thickness = .001;
-e = .001;
+rect_thickness = .0005;
+e = .0005;
 N = 100; %number of scalars, also N_s in paper. 
-step = .001; %in seconds
+step = .0005; %in seconds
 total_steps = (tf-t0)/step;
 total_steps = ceil(total_steps) + 1;
 
+t0_minus_3 = t0-3*step;
+
 %setting up functions filled with NaNs, and t values, spaced by the step. 
 %NaNs are first row, t values are second row. 
-[scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,r_func1,r_func2,r_func3,basem_scale_factor,basem_scale_1deriv] = deal(NaN(2,total_steps));
-for i=1:total_steps
-    [scale_factor(2,i),scale_1deriv(2,i),scale_2deriv(2,i),scale_3deriv(2,i),basem_scale_factor(2,i),basem_scale_1deriv(2,i),r_func1(2,i),r_func2(2,i),r_func3(2,i)] = deal(t0 + (i-1)*step);
+[scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,r_func1,r_func2,r_func3,basem_scale_factor,basem_scale_1deriv] = deal(NaN(2,total_steps+3));
+for i=1:total_steps+3
+    [scale_factor(2,i),scale_1deriv(2,i),scale_2deriv(2,i),scale_3deriv(2,i),basem_scale_factor(2,i),basem_scale_1deriv(2,i),r_func1(2,i),r_func2(2,i),r_func3(2,i)] = deal(t0_minus_3 + (i-1)*step);
 end
 
-scale_factor(1,1) = a0; %initial conditions
-basem_scale_factor(1,1) = a0; %initial conditions
-area_matrix = [0 0 0];
+C=1/15*(10*a0^(3/2)+t0);
+a0_minus_3 = (15*C-t0_minus_3)^(2/3)/10^(2/3); %sets init cond 3 steps back so we can have the derivatives right from start of actual sim, at t=4
+
+scale_factor(1,1) = a0_minus_3; %initial conditions
+%basem_scale_factor(1,1) = a0; %initial conditions
+%area_matrix = [0 0 0];
 
 %CLASSICAL ITERATIONS
 for curr_t_index=1:total_steps
@@ -68,6 +73,7 @@ for curr_t_index=1:total_steps
         break;
     end
 end
+
 
 %NUMERICAL AREA
 % for t=1:total_steps
@@ -131,28 +137,28 @@ lw = 1; %sets linewidth for all plots
 
 %scale factor plot
  subplot(2,2,1);
- plot(scale_factor(2,1:total_steps),scale_factor(1,1:total_steps),'LineWidth',lw);
+ plot(scale_factor(2,4:total_steps),scale_factor(1,4:total_steps),'LineWidth',lw);
  xlabel('Time (s)','FontSize',14,'interpreter','latex');
  ylabel('$a(t)$','FontSize',14,'interpreter','latex');
  title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %first derivative plot
 subplot(2,2,2);
-plot(scale_1deriv(2,1:total_steps),scale_1deriv(1,1:total_steps),'LineWidth',lw);
+plot(scale_1deriv(2,4:total_steps),scale_1deriv(1,4:total_steps),'LineWidth',lw);
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$\dot{a}(t)$','FontSize',14,'interpreter','latex');
 title('Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %second derivative plot
 subplot(2,2,3);
-plot(scale_2deriv(2,1:total_steps),scale_2deriv(1,1:total_steps),'LineWidth',lw);
+plot(scale_2deriv(2,4:total_steps),scale_2deriv(1,4:total_steps),'LineWidth',lw);
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
 title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %third derivative plot
 subplot(2,2,4);
-plot(scale_3deriv(2,1:total_steps),scale_3deriv(1,1:total_steps),'LineWidth',lw);
+plot(scale_3deriv(2,4:total_steps),scale_3deriv(1,4:total_steps),'LineWidth',lw);
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
 title('Third Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');

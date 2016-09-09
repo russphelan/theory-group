@@ -51,3 +51,29 @@ plot(r_funct(2,:),diffs,'Color','b')
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('Analytic - Numerical','FontSize',14,'interpreter','latex');
 title('Residuals for $t$','FontSize',18,'FontWeight','bold','interpreter','latex');
+
+
+%NUMERICAL ERROR PLOTS
+
+%analytical derivatives
+
+%t array initialization
+for i=1:total_steps
+    t(i) = deal(t0 + (i-1)*step);
+end
+
+a = (-t).^(2/3)/10^(2/3);
+a_dot = -2/3/10^(2/3)*(-t).^(-1/3);
+a_double_dot = -2/9/10^(2/3)*(-t).^(-4/3);
+a_triple_dot = -8/27/10^(2/3)*(-t).^(-7/3);
+
+a_residuals = scale_factor(1,4:end)-a;
+a_dot_residuals = scale_1deriv(1,4:end)-a_dot;
+a_double_dot_residuals = scale_2deriv(1,4:end)-a_double_dot;
+a_triple_dot_residuals = scale_3deriv(1,4:end)-a_triple_dot;
+
+plot(t,a_triple_dot_residuals);
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('Numerical-Analytic','FontSize',14,'interpreter','latex');
+title('$a(t)$ Third Deriv Residuals','FontSize',18,'FontWeight','bold','interpreter','latex');
+

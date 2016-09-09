@@ -12,7 +12,7 @@ assert((i <= size(func_array,2)),'attempt to overfill function object')
 
 old_t = func_array(2,i-1);
 old_a = func_array(1,i-1);
-t0 = func_array(2,1);
+t0 = func_array(2,4);
 
 k1 = equations(old_t,old_a,expand_or_contract,simType,t0,area);
 k2 = equations(old_t + stepSize/2,old_a + (stepSize/2)*k1,expand_or_contract,simType,t0,area);
