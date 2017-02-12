@@ -36,8 +36,8 @@ C=1/15*(10*a0^(3/2)+t0);
 a0_minus_3 = (15*C-t0_minus_3)^(2/3)/10^(2/3); %sets init cond 3 steps back so we can have the derivatives right from start of actual sim, at t=4
 
 scale_factor(1,1) = a0_minus_3; %initial conditions
-%basem_scale_factor(1,1) = a0; %initial conditions
-%area_matrix = [0 0 0];
+basem_scale_factor(1,4) = a0; %initial conditions
+area_matrix = [NaN NaN NaN]; %spacers so that the first area calculated is in the 4th slot, where the real time starts
 
 %CLASSICAL ITERATIONS
 for curr_t_index=1:total_steps
@@ -76,42 +76,35 @@ end
 
 
 %NUMERICAL AREA
-% for t=1:total_steps
-%     
-%     %calculate area up to current t value
-%     if(t>=7)
-%         %r functions
-%         r_func1 = r_funcs(r_func1,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,1);
-%         r_func2 = r_funcs(r_func2,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,2);
-%         r_func3 = r_funcs(r_func3,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,3);
-%         
-%         %integrate from t=t0 to current t for each of the three integrals
-%         area1 = causal_nonlocal_int(t, r_func1, e, step, rect_thickness);
-%         area2 = causal_nonlocal_int(t, r_func2, e, step, rect_thickness);
-%         area3 = causal_nonlocal_int(t, r_func3, e, step, rect_thickness);
-%         
-%         %set coefficients for combining areas
-%         coef1 = 6*sqrt(scale_factor(1,t))*scale_2deriv(1,t);
-%         coef2 = 6*scale_1deriv(1,t)^2/sqrt(scale_factor(1,t));
-%         coef3 = 12*sqrt(scale_factor(1,t))*scale_1deriv(1,t);
-%         
-%         %the actual combining of areas
-%         area = N*(coef1*area1 + coef2*area2 + coef3*area3);
-%         
-%         %storing area for plotting
-%         area_matrix = [area_matrix area];
-%         
-%         %calculate next runge_step using the area just calculated
-%         basem_scale_factor = runge_step(basem_scale_factor,t,area,step,expand_or_contract,2); %runge-kutta algorithm
-%         basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-2);
-%         
-%     else
-%         basem_scale_factor = runge_step(basem_scale_factor,t,0,step,expand_or_contract,2); %runge-kutta algorithm
-%         if t>=3
-%             basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-2);
-%         end
-%     end
-% end
+for t=4:total_steps
+    
+    %calculate area up to current t value
+    
+    %r functions
+    r_func1 = r_funcs(r_func1,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,1);
+    r_func2 = r_funcs(r_func2,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,2);
+    r_func3 = r_funcs(r_func3,t,scale_factor,scale_1deriv,scale_2deriv,scale_3deriv,3);
+    
+    %integrate from t=t0 to current t for each of the three integrals
+    area1 = causal_nonlocal_int(t, r_func1, e, step, rect_thickness);
+    area2 = causal_nonlocal_int(t, r_func2, e, step, rect_thickness);
+    area3 = causal_nonlocal_int(t, r_func3, e, step, rect_thickness);
+    
+    %set coefficients for combining areas
+    coef1 = 6*sqrt(scale_factor(1,t))*scale_2deriv(1,t);
+    coef2 = 6*scale_1deriv(1,t)^2/sqrt(scale_factor(1,t));
+    coef3 = 12*sqrt(scale_factor(1,t))*scale_1deriv(1,t);
+    
+    %the actual combining of areas
+    area = N*(coef1*area1 + coef2*area2 + coef3*area3);
+    
+    %storing area for plotting
+    area_matrix = [area_matrix area];
+    
+    %calculate next runge_step using the area just calculated
+    basem_scale_factor = runge_step(basem_scale_factor,t,area,step,expand_or_contract,2); %runge-kutta algorithm
+    basem_scale_1deriv(1,t) = slope_btwn(basem_scale_factor,t,t-2);
+end
 
 %Basem's hand-calculated area function (for comparison) 
 
@@ -136,32 +129,32 @@ end
 lw = 1; %sets linewidth for all plots
 
 %scale factor plot
- subplot(2,2,1);
- plot(scale_factor(2,4:total_steps),scale_factor(1,4:total_steps),'LineWidth',lw);
- xlabel('Time (s)','FontSize',14,'interpreter','latex');
- ylabel('$a(t)$','FontSize',14,'interpreter','latex');
- title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
+%  subplot(2,2,1);
+%  plot(scale_factor(2,4:total_steps),scale_factor(1,4:total_steps),'LineWidth',lw);
+%  xlabel('Time (s)','FontSize',14,'interpreter','latex');
+%  ylabel('$a(t)$','FontSize',14,'interpreter','latex');
+%  title('Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %first derivative plot
-subplot(2,2,2);
+%subplot(2,1,1);
 plot(scale_1deriv(2,4:total_steps),scale_1deriv(1,4:total_steps),'LineWidth',lw);
 xlabel('Time (s)','FontSize',14,'interpreter','latex');
 ylabel('$\dot{a}(t)$','FontSize',14,'interpreter','latex');
 title('Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %second derivative plot
-subplot(2,2,3);
-plot(scale_2deriv(2,4:total_steps),scale_2deriv(1,4:total_steps),'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
-title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
+% subplot(2,2,3);
+% plot(scale_2deriv(2,4:total_steps),scale_2deriv(1,4:total_steps),'LineWidth',lw);
+% xlabel('Time (s)','FontSize',14,'interpreter','latex');
+% ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
+% title('Second Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %third derivative plot
-subplot(2,2,4);
-plot(scale_3deriv(2,4:total_steps),scale_3deriv(1,4:total_steps),'LineWidth',lw);
-xlabel('Time (s)','FontSize',14,'interpreter','latex');
-ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
-title('Third Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
+% subplot(2,2,4);
+% plot(scale_3deriv(2,4:total_steps),scale_3deriv(1,4:total_steps),'LineWidth',lw);
+% xlabel('Time (s)','FontSize',14,'interpreter','latex');
+% ylabel('$\ddot{a}(t)$','FontSize',14,'interpreter','latex');
+% title('Third Derivative','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %area plot
 % subplot(2,3,3);
@@ -178,11 +171,11 @@ title('Third Derivative','FontSize',18,'FontWeight','bold','interpreter','latex'
 % title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem scale factor derivative plot
-% subplot(2,3,5);
-% plot(basem_scale_1deriv(2,1:total_steps),basem_scale_1deriv(1,1:total_steps),'LineWidth',lw);
-% xlabel('Time (s)','FontSize',14,'interpreter','latex');
-% ylabel('$a(t)$','FontSize',14,'interpreter','latex');
-% title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
+%subplot(2,1,2);
+plot(basem_scale_1deriv(2,4:total_steps),basem_scale_1deriv(1,4:total_steps),'LineWidth',lw,'Color','r');
+xlabel('Time (s)','FontSize',14,'interpreter','latex');
+ylabel('$a(t)$','FontSize',14,'interpreter','latex');
+title('Basem Scale Factor','FontSize',18,'FontWeight','bold','interpreter','latex');
 
 %basem area comparison function, contraction
 % subplot(2,3,6);

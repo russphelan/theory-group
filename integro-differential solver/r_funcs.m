@@ -33,8 +33,8 @@ switch(which_r)
 end
 
 %error conditions
-assert(~isnan(r_func(1,t)),'this r_funcs value is NaN')
-assert(isreal(r_func(1,t)),'this r_funcs value is complex')
+assert(~isnan(r_func(1,t)),'this r_funcs value is NaN at index %u',t)
+assert(isreal(r_func(1,t)),'this r_funcs value is complex at index %u',t)
         
 new_r_func = r_func;
 end
