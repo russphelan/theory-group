@@ -1,6 +1,10 @@
 %Author: Russell J. Phelan 
 %Date: 9-9-16
 
+%I would like to thank John Donoghue, Basem El-Menoufi, Panayotis Kevrekidis, and William ?Bill? Barnes 
+%for useful conversations and inspiration related to this project. This work has been supported in part 
+%by the National Science Foundation under grants NSF PHY15-20292 and NSF PHY12-25915.
+
 function area = causal_nonlocal_int(t, r_func, e, step, rect_thickness)
 %Causal non-local function implemented with small epsilon in place of
 %limiting process. dx must be smaller than e. e<<1 is also required. 

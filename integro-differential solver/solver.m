@@ -1,6 +1,10 @@
 %Author: Russell J Phelan
-%Date: 6/12/16
+%Date: 2/13/17
 %Solver script for integro-differential equations
+
+%I would like to thank John Donoghue, Basem El-Menoufi, Panayotis Kevrekidis, and William ?Bill? Barnes 
+%for useful conversations and inspiration related to this project. This work has been supported in part 
+%by the National Science Foundation under grants NSF PHY15-20292 and NSF PHY12-25915.
 
 clear all; 
 
@@ -16,10 +20,10 @@ a0 = 1; %for testing
 %expand_or_contract = input('Type 1 for expanding universe, 0 for contracting universe.'); %chooses which branch of scale factor equations to use
 expand_or_contract = 0; %for testing
 
-rect_thickness = .0005;
-e = .0005;
+rect_thickness = .001;
+e = .001;
 N = 100; %number of scalars, also N_s in paper. 
-step = .0005; %in seconds
+step = .001; %in seconds
 total_steps = (tf-t0)/step;
 total_steps = ceil(total_steps) + 1;
 
@@ -31,13 +35,12 @@ t0_minus_3 = t0-3*step;
 for i=1:total_steps+3
     [scale_factor(2,i),scale_1deriv(2,i),scale_2deriv(2,i),scale_3deriv(2,i),basem_scale_factor(2,i),basem_scale_1deriv(2,i),r_func1(2,i),r_func2(2,i),r_func3(2,i)] = deal(t0_minus_3 + (i-1)*step);
 end
+area_matrix = [NaN NaN NaN]; %spacers so that the first area calculated is in the 4th slot, where user-submitted time starts
 
-C=1/15*(10*a0^(3/2)+t0);
-a0_minus_3 = (15*C-t0_minus_3)^(2/3)/10^(2/3); %sets init cond 3 steps back so we can have the derivatives right from start of actual sim, at t=4
-
-scale_factor(1,1) = a0_minus_3; %initial conditions
-basem_scale_factor(1,4) = a0; %initial conditions
-area_matrix = [NaN NaN NaN]; %spacers so that the first area calculated is in the 4th slot, where the real time starts
+C=1/15*(10*a0^(3/2)+t0); %constant in analytical solve of classical equation, next line is analytical solution using this C. 
+a0_minus_3 = (15*C-t0_minus_3)^(2/3)/10^(2/3); %sets extrapolated IC 3 steps back so we can have the derivs right from t=4 on.
+scale_factor(1,1) = a0_minus_3; %set extrapolated IC
+basem_scale_factor(1,4) = a0; %user-submitted IC, offset by 4 b/c of precalculation of derivs
 
 %CLASSICAL ITERATIONS
 for curr_t_index=1:total_steps

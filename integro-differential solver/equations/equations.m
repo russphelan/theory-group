@@ -1,6 +1,10 @@
 %Author: Russell J. Phelan 
 %Date: 10-19-15
 
+%I would like to thank John Donoghue, Basem El-Menoufi, Panayotis Kevrekidis, and William ?Bill? Barnes 
+%for useful conversations and inspiration related to this project. This work has been supported in part 
+%by the National Science Foundation under grants NSF PHY15-20292 and NSF PHY12-25915.
+
 function [a_prime] = equations(t,a,expand_or_contract,simType,t0,area)
 
 %error conditions

@@ -1,3 +1,10 @@
+%Author: Russell J. Phelan 
+%Date: 9-9-16
+
+%I would like to thank John Donoghue, Basem El-Menoufi, Panayotis Kevrekidis, and William ?Bill? Barnes 
+%for useful conversations and inspiration related to this project. This work has been supported in part 
+%by the National Science Foundation under grants NSF PHY15-20292 and NSF PHY12-25915.
+
 function [next_func_array] = runge_step(func_array,i,area,stepSize,expand_or_contract,simType)
 %Takes a function as a 2xn array, returns the function with one more
 %Runge-Kutta solver stepSize taken. 
