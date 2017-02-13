@@ -1,0 +1,137 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{authblk}
+\usepackage{hyperref}
+\usepackage{dirtree}
+\usepackage[T1]{fontenc}
+
+\hypersetup {
+	colorlinks=true,
+	urlcolor=blue
+	}
+
+\def\code#1{\texttt{#1}}
+\errorcontextlines 10000
+
+\def\D{\mathrm{d}} %for writing Leibniz notation succinctly. 
+
+\title{Integro-Differential Equation Solver}
+\author{Russell J. Phelan}
+\affil{\textit{University of Massachusetts Amherst}}
+
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+\subsection{Program Structure} 
+
+\dirtree{% .1 {\bf integro-differential-solver}. .2 solver.m.
+ .3 INITIAL CONDITIONS AND GLOBAL PARAMTERS.
+ .4 initialization of all matrix types.
+ .4 extrapolate IC for pre-calculated derivatives.
+ .3 CLASSICAL ODE SOLVE LOOP.
+ .4 calc next Runge-Kutta step, with integral term = 0.
+ .4 calc 1st, 2nd, 3rd derivatives.
+ .4 various error checks and debug print-outs, then loop again.
+ .3 INTEGRAL TERM CALC, AND QUANTUM IDE SOLVE LOOP.
+ .4 calculate next point for all \(R\) functions.
+ .4 integrate quantum terms fully from \(t_0\) to this loop's \(t\), using all past \(R\) function data.
+ .4 calculate and store resulting 'total area'. 
+ .4 calculate next quantum-corrected Runge-Kutta step, then loop again.
+ .3 CALC BASEM'S ANALYTICAL FIRST APPROX FOR TESTING AND DEBUGGING.
+ .3 VARIOUS PLOTS. .2 {\bf equations}.
+ .3 equations.m.
+ .3 r\_funcs.m.
+ .2 {\bf ode-solver}.
+ .3 runge\_step.m.
+ .2 {\bf integration}.
+ .3 causal\_nonlocal\_int.m.
+ .2 {\bf helpers}. .2 {\bf tests}.
+ .2 {\bf notes}.
+ }
+ 
+\subsection{What it Does}
+
+This documentation is written so that anyone with basic Matlab experience can understand that choices made in the design of this integro-differential solver, and how to adapt it to solve novel problems. 
+
+The particular equation that the code is set up to solve is from physics. It results from quantum loop gravity theory, and governs the change in the "scale factor", a quantity representing the expansion/contraction of the universe. It should be easily adaptable to any equation of a similar form. 
+
+The general form that the program solves is as follows: 
+
+\begin{equation}
+\dot{a}(t) = P(a, \dot{a}, \ddot{a}, \cdots, t) \int \D t' R(a, \dot{a}, \ddot{a}, \cdots, t') \frac{1}{t - t'} 
+\end{equation}
+
+Here, \( t' \) is a dummy variable, integrated from \( t_0 \) to the \( t \) in current iteration. 
+
+As is, the system is also set up to accommodate for behavior \textbf{(see section 1.3)} that truncates the integral early, and adds a logarithmic term in order to prevent a non-physical divergence. This behavior can easily be removed if it isn't needed. \textbf{Be careful not to run the program as is without removing this truncation behavior if you do not explicitly need it.}
+
+
+
+\subsection{Numerical Methods Used}
+
+The differential equation solver is a standard Runge-Kutta type, the workings of which can be found just about anywhere. The basic idea is that at the current \( t \), \( \dot{a}(t) \) is determined from the differential equation. Then, several linear approximations are taken, some of which are overestimates, others underestimates. The slopes of these approximations are averaged. The program uses the average slope to approximate \( a(t) \) over the next small interval \( \D t \), and stores its value for \( a(t + \D t) \). It then uses this new value to get \( \dot{a}(t + \D t) \), and the iteration repeats. 
+
+In order to find \( \dot{a}(t) \) at the next point, the program needs to evaluate an integral, thus `integro-differential equaton'. This integral is evaluated numerically using the trapezoid rule. The specific formula used follows, where \( N \) is the number of grid points, \( x_1 = a \), and \( x_N = b \):
+
+\begin{equation}
+\int_a^b f(x) \D x = \frac{b - a}{2N}( f(x_1) + 2f(x_2) + 2f(x_3) + \cdot + 2f(x_{N-1}) + f(x_N))
+\end{equation}
+
+Note that there is one less "trapezoid" than there are grid points. 
+
+\subsection{Implementing the Causal Non-Local Function}
+
+The causal non-local function is given as follows: 
+
+\begin{equation}
+\mathcal{L}(t - t') = \lim_{\epsilon \to 0} \left[ \frac{\theta(t - t' - \epsilon)}{t - t'} + \delta (t - t') \log (\mu_R \epsilon) \right]
+\end{equation}
+
+This function multiplies the integrand in the quantum loop gravity equation currently configured, as follows: 
+
+\begin{equation}
+\dot{a}(t) = P(a, \dot{a}, \ddot{a}, \cdots, t) \int \D t' R(a, \dot{a}, \ddot{a}, \cdots, t') \mathcal{L}(t - t')
+\end{equation}
+
+Examining the equation \( (3) \) shows that \( \mathcal{L}(t - t' \) contains the \( \frac{1}{t - t'}  \) behavior, but also has the effect of "shutting off" the integral \( \epsilon \) away from the upper bound (Heaviside function). The delta function has the effect of tacking the logarithmic term onto the final sum at the end. This is exactly how this behavior has been implemented in the program: terminate integral early, tack logarithmic term on the end. 
+
+It should be noted that 
+
+
+
+ 
+ \subsection{Discontinuities Due to Discretization}
+ 
+ Since the function values are discrete, there is no way to truly represent a continuous function using our function model. When working with equations that are less stable, small discontinuities can propagate into serious errors. For this reason, a sort of smoothness interpolating method has been implemented. This section explains the choices made, and mechanics behind this method. 
+ 
+ 
+
+
+\section{The Function Structure}
+
+Functions are represented using Matlab's Array/Matrix data type. Here is a \href{https://www.mathworks.com/help/matlab/learn_matlab/matrices-and-arrays.html}{quick tutorial} for Matlab array manipulations. 
+
+In math, a function is defined as a set of tuples, \((x, f(x))\). Functions in this program work similarly. We use \(2 \times n\) arrays, where the indices and function values are organized as in the following diagram: 
+
+\begin{equation}
+\begin{array}{c|c|c|c|c}
+ & 1 & 2 & 3 \\
+ \hline
+ 1 & f(x_1) & f(x_2) & f(x_3) & \hdots \\ 
+  \hline
+  2 & x_1 & x_2 & x_3 & \hdots
+ \end{array}
+ \end{equation}
+ 
+ The spacing between values is determined by the \code{step} parameter, found under \code{\%INITIAL CONDITIONS/PARAMETERS} in \code{solver.m}. 
+
+
+
+
+
+
+
+\end{document}
