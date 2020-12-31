@@ -8,4 +8,4 @@ The 'main' file is solver.m.
 
 Documentation can be found in the folder by that name. This documentation is a work-in-progress as of 2/13/17. I hope that it can be helpful in some way.
 
-- Russell J Phelan, UMass Amherst Undergraduate, Math/Physics. 
+- Russell J Phelan, UMass Amherst Undergraduate, Math/Physics (update 12/31/2020: currently in math PhD, studying Riemannian geometry at UC Riverside).
